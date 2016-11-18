@@ -1,0 +1,91 @@
+#!/usr/bin/env bash
+
+DOCKERVOL_ROOT='/docker_volumes'
+# data shared between containers:
+#SHAREDDATA_ROOT="${DOCKERVOL_ROOT}/01shared_data"
+
+# configure container
+export IMGID='99'  # range from 02 .. 99; must be unique per node
+PROJSHORT='ssp'
+
+export IMAGENAME="r2h2/$PROJSHORT${IMGID}"
+export CONTAINERNAME="${IMGID}$PROJSHORT"
+export CONTAINERUSER="$PROJSHORT${IMGID}"   # group and user to run container
+export CONTAINERUID="80${IMGID}"     # gid and uid for CONTAINERUSER
+#export SHARED_CONTAINERS_GROUP="sharedcont"   # group shared by other containers
+#export SHARED_CONTAINERS_GROUPID="8000"
+export BUILDARGS="
+    --build-arg "USERNAME=$CONTAINERUSER" \
+    --build-arg "UID=$CONTAINERUID" \
+"
+export ENVSETTINGS="
+    -e LOGDIR=/var/log
+    -e LOGLEVEL=INFO
+"
+
+# assuming that ssp is proxied, and proxy is talking to dockernet address
+export NETWORKSETTINGS="
+    --net http_proxy
+    --ip 10.1.1.${IMGID}
+"
+export VOLROOT="${DOCKERVOL_ROOT}/$CONTAINERNAME"  # container volumes on docker host
+# /etc/* directories are writeable to allow init_config.sh to write defaults
+export VOLMAPPING="
+    -v $VOLROOT/etc/apache2:/etc/apache2:Z
+    -v $VOLROOT/etc/simplesaml/cert:/var/simplesaml/cert:Z
+    -v $VOLROOT/etc/simplesaml/config:/var/simplesaml/config:Z
+    -v $VOLROOT/etc/simplesaml/metadata:/var/simplesaml/metadata:Z
+    -v $VOLROOT/var/log/httpd:/var/log/apache2:Z
+    -v $VOLROOT/var/log/simplesaml:/var/simplesaml/log:Z
+    -v $VOLROOT/var/simplesaml/data:/var/simplesaml/data:Z
+    -v $VOLROOT/var/www:/var/www:Z
+"
+#    -v $SHAREDDATA_ROOT/$CONTAINERNAME/www:/var/www:Z
+
+
+export STARTCMD='/start.sh'
+export START_AS_ROOT=      # start as root (e.g. for apache to fall back to www user)
+
+# first start: create user, group and host directories
+if [ $(id -u) -ne 0 ]; then
+    sudo="sudo"
+fi
+if ! id -u $CONTAINERUSER &>/dev/null; then
+    if [[ ${OSTYPE//[0-9.]/} == 'darwin' ]]; then
+            $sudo sudo dseditgroup -o create -i $CONTAINERUID $CONTAINERUSER
+            $sudo dscl . create /Users/$CONTAINERUSER UniqueID $CONTAINERUID
+            $sudo dscl . create /Users/$CONTAINERUSER PrimaryGroupID $CONTAINERUID
+    else
+      source /etc/os-release
+      case $ID in
+        centos|fedora|rhel)
+            $sudo groupadd --non-unique -g $CONTAINERUID $CONTAINERUSER
+            $sudo adduser --non-unique -M --gid $CONTAINERUID --comment "" --uid $CONTAINERUID $CONTAINERUSER
+            ;;
+        debian|ubuntu)
+            $sudo groupadd -g $CONTAINERUID $CONTAINERUSER
+            $sudo adduser --gid $CONTAINERUID --no-create-home --disabled-password --gecos "" --uid $CONTAINERUID $CONTAINERUSER
+            ;;
+        *)
+            echo "do not know how to add user/group for OS ${OSTYPE} ${NAME}"
+            ;;
+      esac
+    fi
+fi
+
+function chkdir {
+    dir=$1; user=$2
+    $sudo mkdir -p "$VOLROOT/$dir"
+    $sudo chown -R $user:$user "$VOLROOT/$dir"
+}
+
+# create if not existing and set owner for path on docker host relative to $VOLROOT
+chkdir etc/apache2 $CONTAINERUSER
+chkdir etc/simplesaml/cert $CONTAINERUSER
+chkdir etc/simplesaml/config $CONTAINERUSER
+chkdir etc/simplesaml/metadata $CONTAINERUSER
+chkdir var/log/httpd $CONTAINERUSER
+chkdir var/log/simplesaml $CONTAINERUSER
+chkdir var/simplesaml/data $CONTAINERUSER
+chkdir var/www $CONTAINERUSER
+

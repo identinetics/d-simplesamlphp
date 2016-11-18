@@ -11,7 +11,8 @@ RUN apt-get update  -y \
  && apt-get install -y libmcrypt-dev mcrypt \
  && apt-get install -y php5 libapache2-mod-php5 php5-mcrypt php-pear \
  && apt-get install -y php5-common php5-cli php5-curl php5-gmp php5-ldap php5-sqlite \
- && apt-get clean
+ && apt-get clean \
+ && a2enmod headers
 
 # if using TLS directly, i.e. without proxy:
 #RUN apt-get install -y libapache2-mod-gnutls \
@@ -35,8 +36,7 @@ RUN mkdir -p $SSP_DEFAULTCONF/config \
  && cp -pr $SSP_ROOT/config-templates/* $SSP_DEFAULTCONF/config/ \
  && mkdir -p $SSP_DEFAULTCONF/metadata \
  && cp -pr $SSP_ROOT/metadata-templates/* $SSP_DEFAULTCONF/metadata/
-RUN for module in cron metarefresh; \
-    do \
+RUN for module in cron metarefresh; do \
         touch $SSP_ROOT/modules/${module}/enable; \
         mkdir -p $SSP_DEFAULTCONF/${module}; \
         cp -pr $SSP_ROOT/modules/${module}/config-templates/* $SSP_DEFAULTCONF/config/; \
@@ -63,7 +63,8 @@ ARG USERNAME=ssphttpd
 ARG UID=3000
 RUN groupadd -g $UID $USERNAME \
  && useradd -r -d /var/lib/rabbitmq -m -g $USERNAME -u $UID $USERNAME \
- && mkdir -p /opt && chmod 750 /opt
+ && mkdir -p /opt && chmod 750 /opt \
+ && chown $USERNAME:$USERNAME /var/run/apache2 /var/lock/apache2
  
 USER $USERNAME
 

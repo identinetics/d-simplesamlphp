@@ -17,30 +17,54 @@ Install SSP. Plus:
 
   - Install [Docker](https://www.docker.com/)
 
-## Build & configure & run
+## Install Docker Build Environment
 
     git clone https://github.com/rhoerbe/docker-simplesamlphp.git
-
+    cd docker-simplesamlphp
+    git submodule update --init && cd dscripts && git checkout master && cd ..
+    cp conf.sh.default conf.sh
+    
 Modify conf.sh to your local needs, then:
+    
+    dscripts/build.sh    
+    
+## Configure SSP as an SAML2 SP
 
-``` bash
-dscripts/build.sh
-dscripts/run.sh -ir /init_config.sh
-```
+Create a default configuration:
 
-Configure apache and SSP config.
-Configure a reverse proxy (load balancer) terminating TLS to relay requests
-on the dockernet interface, then run:
+    dscripts/run.sh -ir /init_config.sh
+
+Now go thru the configuration steps for SSP and the IDP(s)
+
+- Configure a reverse proxy (load balancer) terminating TLS to relay requests on the dockernet interface providing the HTTP_X_FORWARDED headers
+- Configure apache vhost (minimum: set ServerName to the external host name matching HTTP_X_FORWARDED_HOST)
+- Create the metadata for the SP and make it available to the IDPs 
+  Download the XML file from https://<sp-fqdn>/simplesaml/module.php/saml/sp/metadata.php/default-sp
+  Metadata created by SSP is minimal any might be compliant with the federtion requirements and have to be edited.
+  Import into the federation's metadata aggregator (or the IDP for a local installation). 
+- Configure metadata feed for SSP (-> config/config-metarefresh.php)
+- Configure config.php (https://simplesamlphp.org/docs/stable/simplesamlphp-install#section_7). 
+  'baseurlpath' must be set to the https://HTTP_X_FORWARDED_HOST/simplesaml/
+- configure cron & metarefresh (https://simplesamlphp.org/docs/stable/simplesamlphp-automated_metadata)
+
+# Run
 
     dscripts/run.sh 
 
-To access simpleSAMLphp from the host server:
+To access the SSP admin page from the host server try:
 
-    http://localhost:50081/simplesaml/
+    https://<sp-fqdn>/simplesaml
 
     username: admin
-    password: password
+    password: <whateveryoudefinedbeforeanddeemedsecureenough>
 
+To access SP pages try:
+    https://<sp-fqdn>/test.php   # unauthenticated
+    https://<sp-fqdn>/hellosaml.php   # authenticated
+
+# Troubleshooting
+
+start with the apache logs (/var/log/apache2
 
 ### References
 

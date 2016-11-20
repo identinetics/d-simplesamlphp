@@ -36,16 +36,21 @@ Create a default configuration:
 
 Now go thru the configuration steps for SSP and the IDP(s)
 
-- Configure a reverse proxy (load balancer) terminating TLS to relay requests on the dockernet interface providing the HTTP_X_FORWARDED headers
-- Configure apache vhost (minimum: set ServerName to the external host name matching HTTP_X_FORWARDED_HOST)
+- Configure a reverse proxy (load balancer) terminating TLS to relay 
+  requests on the dockernet interface providing the HTTP_X_FORWARDED headers
+- Configure apache vhost (minimum: set ServerName to the external host 
+  name matching HTTP_X_FORWARDED_HOST)
 - Create the metadata for the SP and make it available to the IDPs 
   Download the XML file from https://<sp-fqdn>/simplesaml/module.php/saml/sp/metadata.php/default-sp
-  Metadata created by SSP is minimal any might be compliant with the federtion requirements and have to be edited.
-  Import into the federation's metadata aggregator (or the IDP for a local installation). 
+  Metadata created by SSP is minimal any might be compliant with the 
+  federation requirements and have to be edited.
+  Import into the federation's metadata aggregator (or the IDP for a 
+  local installation). 
 - Configure metadata feed for SSP (-> config/config-metarefresh.php)
 - Configure config.php (https://simplesamlphp.org/docs/stable/simplesamlphp-install#section_7). 
   'baseurlpath' must be set to the https://HTTP_X_FORWARDED_HOST/simplesaml/
-- configure cron & metarefresh (https://simplesamlphp.org/docs/stable/simplesamlphp-automated_metadata)
+- Configure cron & metarefresh (https://simplesamlphp.org/docs/stable/simplesamlphp-automated_metadata)
+- Optionally configure postfix to forward mail from root to an accout on a smart host (/etc/postfix ist mapped to the docker host)
 
 # Run
 
@@ -62,9 +67,13 @@ To access SP pages try:
     https://<sp-fqdn>/test.php   # unauthenticated
     https://<sp-fqdn>/hellosaml.php   # authenticated
 
-# Troubleshooting
+## Troubleshooting
 
 start with the apache logs (/var/log/apache2
+
+## Session Handling
+-> Extend SP phpsession, or avoid SSP phpsession
+
 
 ### References
 

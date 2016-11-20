@@ -32,6 +32,7 @@ export VOLROOT="${DOCKERVOL_ROOT}/$CONTAINERNAME"  # container volumes on docker
 # /etc/* directories are writeable to allow init_config.sh to write defaults
 export VOLMAPPING="
     -v $VOLROOT/etc/apache2:/etc/apache2:Z
+    -v $VOLROOT/etc/postfix:/etc/postfix:Z
     -v $VOLROOT/etc/simplesaml/cert:/var/simplesaml/cert:Z
     -v $VOLROOT/etc/simplesaml/config:/var/simplesaml/config:Z
     -v $VOLROOT/etc/simplesaml/metadata:/var/simplesaml/metadata:Z
@@ -81,6 +82,7 @@ function chkdir {
 
 # create if not existing and set owner for path on docker host relative to $VOLROOT
 chkdir etc/apache2 $CONTAINERUSER
+chkdir etc/postfix $CONTAINERUSER
 chkdir etc/simplesaml/cert $CONTAINERUSER
 chkdir etc/simplesaml/config $CONTAINERUSER
 chkdir etc/simplesaml/metadata $CONTAINERUSER

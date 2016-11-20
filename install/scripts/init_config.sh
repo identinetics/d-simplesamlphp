@@ -5,6 +5,9 @@ echo "initializing apache2 config"
 cp -pr /opt/default/apache2 /etc/
 a2enconf servername
 
+echo "initializing postfix config"
+cp -pr /opt/default/postfix /etc/
+
 echo "initializing $SSP_ROOT/config/ and $SSP_ROOT/metadata/ with default data"
 
 cp -pr $SSP_DEFAULTCONF/config/* $SSP_ROOT/config/

@@ -3,11 +3,11 @@ MAINTAINER r2h2 <rainer@hoerbe.at>
 
 ENV DEBIAN_FRONTEND noninteractive
 
-# --- httpd
+# --- postfix send-only + httpd/php5
 RUN apt-get update  -y \
- && apt-get install -y git curl htop \
+ && apt-get install -y git curl htop openssl-blacklist \
  && apt-get install -y apache2 \
- && apt-get install -y apache2-doc apache2-suexec-pristine apache2-suexec-custom apache2-utils openssl-blacklist \
+ && apt-get install -y apache2-doc apache2-suexec-pristine apache2-suexec-custom apache2-utils \
  && apt-get install -y libmcrypt-dev mcrypt \
  && apt-get install -y php5 libapache2-mod-php5 php5-mcrypt php-pear \
  && apt-get install -y php5-common php5-cli php5-curl php5-gmp php5-ldap php5-sqlite \
@@ -24,6 +24,11 @@ RUN mkdir -p /opt/default/ && cp -pr /etc/apache2 /opt/default/ \
  && sed -ie 's/^Listen 80/Listen 8080/' /opt/default/apache2/ports.conf
 COPY install/etc/apache2/sites-enabled/000-default.conf /opt/default/apache2/sites-enabled/000-default.conf
 
+# --- install postfix and save send-only config for init_config script
+RUN apt-get install -y mailutils \
+ && apt-get clean \
+ && sed -ie 's/^inet_interfaces = all/inet_interfaces = loopback-only/' /etc/postfix/main.cf \
+ && cp -pr /etc/postfix /opt/default/
 
 # --- SimpleSAMLphp
 # install core 
@@ -41,7 +46,8 @@ RUN for module in cron metarefresh; do \
         mkdir -p $SSP_DEFAULTCONF/${module}; \
         cp -pr $SSP_ROOT/modules/${module}/config-templates/* $SSP_DEFAULTCONF/config/; \
     done
-COPY install/etc/simplesamlphp/config/config.php $SSP_DEFAULTCONF/config/config.php
+COPY install/etc/simplesaml/config/config.php $SSP_DEFAULTCONF/config/config.php
+COPY install/www/simplesaml/*.php /var/www/html/
 
 
 # --- Composer

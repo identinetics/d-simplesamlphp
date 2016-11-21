@@ -35,7 +35,9 @@ RUN apt-get install -y mailutils \
 ENV SSP_ROOT=/var/simplesaml
 RUN git clone https://github.com/simplesamlphp/simplesamlphp.git $SSP_ROOT \
  && touch /tmp/sqlitedatabase.sq3 \
+ && cp -p $SSP_ROOT/config/config.php $SSP_ROOT/config/config.php.orig \
  && sed -ie "s/^'logging.handler'\s+=> 'syslog'/'logging.handler'\s+=> 'file'/" $SSP_ROOT/config/config.php \
+ && perl -i -pe "s/^(\s*)array('type' => 'flatfile')/$1array('type' => 'serialize', 'directory' => 'metadata\/metarefresh-federation'),/" $SSP_ROOT/config/config.php
 
 # prepare default configuration to be copied into container volumes at run time
 ENV SSP_DEFAULTCONF=/opt/default/simplesaml

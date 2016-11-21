@@ -34,25 +34,13 @@ RUN apt-get install -y mailutils \
 # install core, tweak config
 ENV SSP_ROOT=/var/simplesaml
 RUN git clone https://github.com/simplesamlphp/simplesamlphp.git $SSP_ROOT \
- && touch /tmp/sqlitedatabase.sq3 \
- && cp -p $SSP_ROOT/config/config.php $SSP_ROOT/config/config.php.orig \
- && sed -ie "s/^'logging.handler'\s+=> 'syslog'/'logging.handler'\s+=> 'file'/" $SSP_ROOT/config/config.php \
- && perl -i -pe "s/^(\s*)array('type' => 'flatfile')/$1array('type' => 'serialize', 'directory' => 'metadata\/metarefresh-federation'),/" $SSP_ROOT/config/config.php
+ && touch /tmp/sqlitedatabase.sq3
 
 # prepare default configuration to be copied into container volumes at run time
 ENV SSP_DEFAULTCONF=/opt/default/simplesaml
 RUN mkdir -p $SSP_DEFAULTCONF/attributemap \
- && cp -pr $SSP_ROOT/config-templates/* $SSP_DEFAULTCONF/attributemap/ \
- && mkdir -p $SSP_DEFAULTCONF/config \
- && cp -pr $SSP_ROOT/config-templates/* $SSP_DEFAULTCONF/config/ \
- && mkdir -p $SSP_DEFAULTCONF/metadata \
- && cp -pr $SSP_ROOT/metadata-templates/* $SSP_DEFAULTCONF/metadata/ \
- && for module in cron metarefresh; do \
-        touch $SSP_ROOT/modules/${module}/enable; \
-        mkdir -p $SSP_DEFAULTCONF/${module}; \
-        cp -pr $SSP_ROOT/modules/${module}/config-templates/* $SSP_DEFAULTCONF/config/; \
-    done
-COPY install/etc/simplesaml/config/config.php $SSP_DEFAULTCONF/config/config.php
+ && cp -pr $SSP_ROOT/attributemap/* $SSP_ROOT/attributemap-templates/
+COPY install/etc/simplesaml/attributemap/pvp2name.php $SSP_DEFAULTCONF/attributemap-templates/
 COPY install/www/simplesaml/*.php /var/www/html/
 
 

@@ -25,7 +25,7 @@ export ENVSETTINGS="
 
 # assuming that ssp is proxied, and proxy is talking to dockernet address
 export NETWORKSETTINGS="
-    --net http_proxy
+    --net dockernet
     --ip 10.1.1.${IMGID}
 "
 export VOLROOT="${DOCKERVOL_ROOT}/$CONTAINERNAME"  # container volumes on docker host

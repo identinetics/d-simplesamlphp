@@ -40,6 +40,7 @@ RUN git clone https://github.com/simplesamlphp/simplesamlphp.git $SSP_ROOT \
 RUN mkdir -p $SSP_ROOT/attributemap-templates \
  && cp -pr $SSP_ROOT/attributemap/* $SSP_ROOT/attributemap-templates/
 COPY install/etc/simplesaml/attributemap/pvp2name.php $SSP_ROOT/attributemap-templates/
+COPY install/etc/simplesaml/config/*.php $SSP_ROOT/config-templates
 COPY install/www/simplesaml/*.php /var/www/html/
 
 

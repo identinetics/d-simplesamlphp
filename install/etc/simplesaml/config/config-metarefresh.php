@@ -20,7 +20,7 @@ $config = array(
                 ),
             ),
             'expireAfter'       => 60*60*24*10, // Maximum 10 days cache time
-            'outputDir'     => 'metadata/metarefresh-testpvgvat/',
+            'outputDir'     => 'metadata/metarefresh-federation/',
             'outputFormat' => 'serialize',
         ),
     ),

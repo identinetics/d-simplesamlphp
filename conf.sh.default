@@ -33,6 +33,7 @@ export VOLROOT="${DOCKERVOL_ROOT}/$CONTAINERNAME"  # container volumes on docker
 export VOLMAPPING="
     -v $VOLROOT/etc/apache2:/etc/apache2:Z
     -v $VOLROOT/etc/pki/sign/certs:/etc/pki/sign/certs:ro
+    -v $VOLROOT/etc/simplesaml/attributemap:/var/simplesaml/attributemap:Z
     -v $VOLROOT/etc/simplesaml/cert:/var/simplesaml/cert:Z
     -v $VOLROOT/etc/simplesaml/config:/var/simplesaml/config:Z
     -v $VOLROOT/var/simplesaml/metadata:/var/simplesaml/metadata:Z
@@ -82,6 +83,7 @@ function chkdir {
 
 # create if not existing and set owner for path on docker host relative to $VOLROOT
 chkdir etc/apache2 $CONTAINERUSER
+chkdir etc/simplesaml/attributemap $CONTAINERUSER
 chkdir etc/simplesaml/cert $CONTAINERUSER
 chkdir etc/simplesaml/config $CONTAINERUSER
 chkdir var/log/httpd $CONTAINERUSER

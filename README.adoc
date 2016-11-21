@@ -1,9 +1,9 @@
 # docker-simplesamlphp
 
-simpleSAMLphp (SSP) Docker image
+simpleSAMLphp (SSP) Docker image with cookbook to configure an SP in a federation 
 
 
-##Introduction
+## Introduction
 
 Install SSP. Plus:
 - Immutable container, exposing config, log etc. to docker host volumes, with proper 
@@ -11,6 +11,7 @@ Install SSP. Plus:
 - Run container as non-root
 - By default exclude TSL configuration (delegated to a dedicated proxy)
 - Configure automated metadata source by default
+- IDP is selected by discovery service
 
 
 ## Prerequisites
@@ -24,6 +25,7 @@ Install SSP. Plus:
     git submodule update --init && cd dscripts && git checkout master && cd ..
     cp conf.sh.default conf.sh
     
+    
 Modify conf.sh to your local needs, then:
     
     dscripts/build.sh    
@@ -34,7 +36,18 @@ Create a default configuration:
 
     dscripts/run.sh -ir /init_config.sh
 
-Now go thru the configuration steps for SSP and the IDP(s)
+Then go thru the configuration steps for SSP and the IDP(s)
+
+.Essential configuraton data to say hello in a federation 
+[width="100%"]
+|===
+|Item|Values used in example and default config
+|SP root URL | https://sp.example.org/
+|SP entityID | https://sp.example.org/simplesaml
+|Federation metadata URL | http://mdfeed.federation.org/metadata.xml
+|Metadata signing cert | metadata_crt.pem
+|===
+
 
 - Configure a reverse proxy (load balancer) terminating TLS to relay 
   requests on the dockernet interface providing the HTTP_X_FORWARDED headers
@@ -47,10 +60,23 @@ Now go thru the configuration steps for SSP and the IDP(s)
   Import into the federation's metadata aggregator (or the IDP for a 
   local installation). 
 - Configure metadata feed for SSP (-> config/config-metarefresh.php)
-- Configure config.php (https://simplesamlphp.org/docs/stable/simplesamlphp-install#section_7). 
-  'baseurlpath' must be set to the https://HTTP_X_FORWARDED_HOST/simplesaml/
+- Configure config.php 
+[width="100%"]
+|===
+|Key|Value|
+|baseurlpath | https://sp.example.org/simplesaml | Full URL required for reverse proxy config
+|technicalcontact_email | admin@example.org | 
+|technicalcontact_name | Support example.org | 
+|secretsalt | $(openssl rand -base64 30) | 
+|auth.adminpassword| ... | see timezone
+|session.duration | 1*(60*60) | federation or deployment-specific value, e.g. 1h 
+|timezone | Europe/Vienna | http://php.net/manual/en/timezones.php
+|metadata.sources | array(array('type' => 'serialize', 'directory' => 'metadata/metarefresh-federation')) |
+|===
 - Configure cron & metarefresh (https://simplesamlphp.org/docs/stable/simplesamlphp-automated_metadata)
 - Optionally configure postfix to forward mail from root to an accout on a smart host (/etc/postfix ist mapped to the docker host)
+- Configure the session store (config.php/store.type). Select 'sql' if the app uses phpsession.
+  You may use the application database instead of sqllite3 (for drupal see https://www.drupal.org/node/1538334)
 
 # Run
 
@@ -67,13 +93,18 @@ To access SP pages try:
     https://<sp-fqdn>/test.php   # unauthenticated
     https://<sp-fqdn>/hellosaml.php   # authenticated
 
+## Session Handling
+-> If application is using SSP phpsession avoid the phpsession setting, use DB or memcached instead.
+   (Option: Extend SP phpsession in application if you know what you are doing)
+
 ## Troubleshooting
 
-start with the apache logs (/var/log/apache2
+Look up apache logs (/var/log/apache2/)
 
-## Session Handling
--> Extend SP phpsession, or avoid SSP phpsession
 
+## Productionalization
+Before or when moving the configuration to a production environment check the security-relevant settings:
+- a new secret
 
 ### References
 

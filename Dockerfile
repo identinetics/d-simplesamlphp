@@ -33,15 +33,16 @@ RUN apt-get install -y mailutils \
 # --- SimpleSAMLphp
 # install core 
 ENV SSP_ROOT=/var/simplesaml
-RUN git clone https://github.com/simplesamlphp/simplesamlphp.git $SSP_ROOT
+RUN git clone https://github.com/simplesamlphp/simplesamlphp.git $SSP_ROOT \
+ && touch /tmp/sqlitedatabase.sq3
 
 # prepare default config to be copied into container volumes at run time
 ENV SSP_DEFAULTCONF=/opt/default/simplesaml
 RUN mkdir -p $SSP_DEFAULTCONF/config \
  && cp -pr $SSP_ROOT/config-templates/* $SSP_DEFAULTCONF/config/ \
  && mkdir -p $SSP_DEFAULTCONF/metadata \
- && cp -pr $SSP_ROOT/metadata-templates/* $SSP_DEFAULTCONF/metadata/
-RUN for module in cron metarefresh; do \
+ && cp -pr $SSP_ROOT/metadata-templates/* $SSP_DEFAULTCONF/metadata/ \
+ && for module in cron metarefresh; do \
         touch $SSP_ROOT/modules/${module}/enable; \
         mkdir -p $SSP_DEFAULTCONF/${module}; \
         cp -pr $SSP_ROOT/modules/${module}/config-templates/* $SSP_DEFAULTCONF/config/; \

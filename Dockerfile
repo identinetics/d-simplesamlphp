@@ -38,7 +38,7 @@ RUN git clone https://github.com/simplesamlphp/simplesamlphp.git $SSP_ROOT \
  && touch /tmp/sqlitedatabase.sq3
 
 # prepare default configuration to be copied into container volumes at run time
-RUN mkdir -p $SSP_ROOT/attributemap-templates \
+RUN mkdir -p $SSP_ROOT/attributemap-templates /var/www/html \
  && cp -pr $SSP_ROOT/attributemap/* $SSP_ROOT/attributemap-templates/
 COPY install/etc/simplesaml/attributemap/pvp2name.php $SSP_ROOT/attributemap-templates/
 COPY install/etc/simplesaml/config/*.php $SSP_ROOT/config-templates

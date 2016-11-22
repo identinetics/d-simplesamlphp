@@ -32,43 +32,59 @@ Modify conf.sh to your local needs, then:
     
 ## Configure SSP as an SAML2 SP
 
-- Create a default configuration:
+### Create a default configuration:
 
     dscripts/run.sh -ir /init_config.sh
 
-- Collect essential configuraton data to get started in a federation:
+
+### Collect essential configuraton data to get started in a federation:
  
 [width="100%"]
 |===
 |Item|Example values in default configuration
-|SP root URL | https://sp.example.org/
-|SP entityID | https://sp.example.org/simplesaml
-|Federation metadata URL | http://mdfeed.federation.org/metadata.xml
-|Metadata signing cert | metadata_crt.pem
-|Attributemap| | federation specific mapping between "friendly names" and URN/OID
+|<SP root URL> | https://sp.example.org/
+|<SP entityID> | https://sp.example.org/simplesaml
+|<Federation metadata URL> | http://mdfeed.federation.org/metadata.xml
+|<Metadata signing cert> | metadata_crt.pem
+|<Attributemap>| | federation specific mapping between "friendly names" and URN/OID
 |===
 
 
-- Configure a reverse proxy (load balancer) terminating TLS to relay 
+### Load Balancer/Revese Proxy
+
+This ist extermal to this docker image. Configure a reverse proxy (load balancer) terminating TLS to relay 
   requests on the dockernet interface providing the HTTP_X_FORWARDED headers
-- Configure apache vhost (minimum: set ServerName to the external host 
-  name matching HTTP_X_FORWARDED_HOST)
-- Create the metadata for the SP and make it available to the IDPs 
-  Download the XML file from https://<sp-fqdn>/simplesaml/module.php/saml/sp/metadata.php/default-sp
-  Metadata created by SSP is minimal any might be compliant with the 
-  federation requirements and have to be edited.
-  Import into the federation's metadata aggregator (or the IDP for a 
-  local installation). 
-- Configure metadata feed for SSP (-> config/config-metarefresh.php)
-- Configure authsources.php
+
+
+### Virtual Host
+
+Configure apache vhost (minimum: set ServerName to the <SP root URL> in sites-available/000-default.conf)
+
+### Export SP Metadata to the Federation
+
+Create the metadata for the SP and make it available to the IDPs. 
+Download the XML file from https://<sp-fqdn>/simplesaml/module.php/saml/sp/metadata.php/default-sp
+Metadata created by SSP is minimal any might be compliant with the federation requirements and have to be edited.
+Import into the federation's metadata aggregator (or the IDP for a local installation).
+ 
+### Import the Federation Metadata
+Configure cron & metarefresh accoring to https://simplesamlphp.org/docs/stable/simplesamlphp-automated_metadata. 
+Key points are:
+- Set 'src' in config-metarefresh.php to <Federation metadata URL>
+- Set 'expireAfter accordingly
+- Copy the <Metadata signing cert> from a trusted source (formally confirmed key exchange for 
+  production env - this is the trust anchor!)
+
+### Configure the SP
+- authsources.php:
 [width="100%"]
 |===
 |Key | Value |
-|entityID | SP entityID
+|entityID | <SP entityID>
 |idp | null | leaving this null will trigger the idp discovery and allow more than one IDP to be used
 |discoURL | null | The build-in disco service provides better UI control, but cookies are not shared across SPs 
 |===
-- Configure config.php 
+- config.php 
 [width="100%"]
 |===
 |Key|Value|
@@ -77,17 +93,18 @@ Modify conf.sh to your local needs, then:
 |technicalcontact_name | Support example.org | 
 |secretsalt | $(openssl rand -base64 30) | 
 |auth.adminpassword| ... | see timezone
-|authproc.sp | 10 => array('class' => 'core:AttributeMap', 'pvp2name') | add a custom or provided attributemap to authproc.sp
+|authproc.sp | 10 => array('class' => 'core:AttributeMap', 'pvp2name') | add a custom or provided <Attributemap> to authproc.sp
 |session.duration | 1*(60*60) | federation or deployment-specific value, e.g. 1h 
 |timezone | Europe/Vienna | http://php.net/manual/en/timezones.php
-|metadata.sources | array(array('type' => 'serialize', 'directory' => 'metadata/metarefresh-federation')) |
 |===
-- Configure cron & metarefresh (https://simplesamlphp.org/docs/stable/simplesamlphp-automated_metadata)
-- Optionally configure postfix to forward mail from root to an accout on a smart host (/etc/postfix ist mapped to the docker host)
 - Configure the session store (config.php/store.type). Select 'sql' if the app uses phpsession.
   You may use the application database instead of sqllite3 (for drupal see https://www.drupal.org/node/1538334)
 
-# Run
+# Outbound SMTP for Admin Alerts 
+Optionally configure postfix to forward mail from root to an accout on a smart host (/etc/postfix 
+is mapped to the docker host)
+
+## Run
 
     dscripts/run.sh 
 
@@ -114,8 +131,8 @@ To access SP pages try:
 
 
 ## Productionalization
-Before or when moving the configuration to a production environment check the security-relevant settings:
-- a new secret
+Before or when moving the configuration to a production environment check the security-relevant settings,
+such as secret, <Metadata signing cert>, auth.adminpassword etc.
 
 ### References
 

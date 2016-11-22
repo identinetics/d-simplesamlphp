@@ -1,9 +1,10 @@
 #!/bin/sh
 # container entrypoint for initializing mounted volumes with default data
 
-echo "initializing apache2 config"
+echo "initializing apache2 config & test scripts in content root"
 cp -pr /opt/default/apache2 /etc/
 a2enconf servername
+cp -pr /opt/default/www/* /var/www/
 
 echo "initializing postfix config"
 cp -pr /opt/default/postfix /etc/
@@ -25,3 +26,4 @@ openssl req -x509 -batch -nodes -newkey rsa:2048 \
     -keyout $SSP_ROOT/cert/saml-key.pem \
     -out $SSP_ROOT/cert/saml-crt.pem
 
+echo "Created default configuration for https://sp.example.com"

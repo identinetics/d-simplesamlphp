@@ -37,12 +37,13 @@ ENV SSP_ROOT=/var/simplesaml
 RUN git clone https://github.com/simplesamlphp/simplesamlphp.git $SSP_ROOT \
  && touch /tmp/sqlitedatabase.sq3
 
+
 # prepare default configuration to be copied into container volumes at run time
-RUN mkdir -p $SSP_ROOT/attributemap-templates /var/www/html \
+RUN mkdir -p $SSP_ROOT/attributemap-templates /opt/default/www/html \
  && cp -pr $SSP_ROOT/attributemap/* $SSP_ROOT/attributemap-templates/
 COPY install/etc/simplesaml/attributemap/pvp2name.php $SSP_ROOT/attributemap-templates/
-COPY install/etc/simplesaml/config/*.php $SSP_ROOT/config-templates
-COPY install/www/simplesaml/*.php /var/www/html/
+COPY install/etc/simplesaml/config/*.php $SSP_ROOT/config-templates/
+COPY install/www/simplesaml/*.php /opt/default/www/html/
 
 
 # --- Composer
@@ -63,9 +64,9 @@ RUN chmod +x /*.sh
 ARG USERNAME=ssphttpd
 ARG UID=3000
 RUN groupadd -g $UID $USERNAME \
- && useradd -r -d /var/lib/rabbitmq -m -g $USERNAME -u $UID $USERNAME \
+ && adduser --gid $UID --no-create-home --disabled-password --gecos "" --uid $UID $USERNAME \
  && mkdir -p /opt && chmod 750 /opt \
  && chown $USERNAME:$USERNAME /var/run/apache2 /var/lock/apache2
- 
+
 USER $USERNAME
 

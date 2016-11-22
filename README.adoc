@@ -93,7 +93,7 @@ Key points are:
 |technicalcontact_name | Support example.org | 
 |secretsalt | $(openssl rand -base64 30) | 
 |auth.adminpassword| ... | see timezone
-|authproc.sp | 10 => array('class' => 'core:AttributeMap', 'pvp2name') | add a custom or provided <Attributemap> to authproc.sp
+|authproc.sp | 10 => array('class' => 'core:AttributeMap', 'pvp2name'), | add a custom or provided <Attributemap> to authproc.sp
 |session.duration | 1*(60*60) | federation or deployment-specific value, e.g. 1h 
 |timezone | Europe/Vienna | http://php.net/manual/en/timezones.php
 |===
@@ -116,8 +116,8 @@ To access the SSP admin page from the host server try:
     password: <whateveryoudefinedbeforeanddeemedsecureenough>
 
 To access SP pages try:
-    https://<sp-fqdn>/test.php   # unauthenticated
-    https://<sp-fqdn>/hellosaml.php   # authenticated
+    https://<sp-fqdn>/test/test.php   # unauthenticated
+    https://<sp-fqdn>/test/hellosaml.php   # authenticated
 
 ## Session Handling
 -> If application is using SSP phpsession avoid the phpsession setting, use DB or memcached instead.

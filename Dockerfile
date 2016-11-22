@@ -37,17 +37,20 @@ ENV SSP_ROOT=/var/simplesaml
 RUN git clone https://github.com/simplesamlphp/simplesamlphp.git $SSP_ROOT \
  && touch /tmp/sqlitedatabase.sq3
 
-
 # prepare default configuration to be copied into container volumes at run time
-RUN mkdir -p $SSP_ROOT/attributemap-templates /opt/default/www/html \
- && cp -pr $SSP_ROOT/attributemap/* $SSP_ROOT/attributemap-templates/
+RUN mkdir -p $SSP_ROOT/attributemap-templates \
+ && cp -pr $SSP_ROOT/attributemap/* $SSP_ROOT/attributemap-templates/ \
+ && for module in cron metarefresh; do \
+        cp -pr $SSP_ROOT/modules/${module}/config-templates/* $SSP_ROOT/config-templates/ \
+        touch $SSP_ROOT/modules/${module}/enable \
+    done
 COPY install/etc/simplesaml/attributemap/pvp2name.php $SSP_ROOT/attributemap-templates/
 COPY install/etc/simplesaml/config/*.php $SSP_ROOT/config-templates/
-COPY install/www/simplesaml/*.php /opt/default/www/html/
+RUN mkdir -p /opt/default/www/html/test
+COPY install/www/*.php /opt/default/www/html/test/
 
 
-# --- Composer
-#RUN echo "extension=mcrypt.so" >> /etc/php5/cli/php.ini
+# --- PHP Composer
 RUN echo "extension=mcrypt.so" >>  /etc/php5/mods-available/mcrypt.ini \
  && php5enmod mcrypt
 WORKDIR $SSP_ROOT

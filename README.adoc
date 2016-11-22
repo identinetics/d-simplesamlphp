@@ -40,7 +40,7 @@ Modify conf.sh to your local needs, then:
  
 [width="100%"]
 |===
-|Item|Example values
+|Item|Example values in default configuration
 |SP root URL | https://sp.example.org/
 |SP entityID | https://sp.example.org/simplesaml
 |Federation metadata URL | http://mdfeed.federation.org/metadata.xml

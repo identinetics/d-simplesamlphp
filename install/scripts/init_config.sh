@@ -17,8 +17,8 @@ for module in cron metarefresh; do
     touch $SSP_ROOT/modules/${module}/enable
 done
 cp -p  $SSP_ROOT/config-templates/config-metarefresh.php $SSP_ROOT/config/   # overwrite default template
-sed -ie "s/^'logging.handler'\s+=> 'syslog'/'logging.handler'\s+=> 'file'/" $SSP_ROOT/config/config.php
-perl -i -pe "s/^(\s*)array('type' => 'flatfile')/$1array('type' => 'serialize', 'directory' => 'metadata\/metarefresh-federation'),/" $SSP_ROOT/config/config.php
+perl -i -pe "s{^(\s*)'logging.handler'\s+=> 'syslog'}{$1'logging.handler'\s+=> 'file'}" $SSP_ROOT/config/config.php
+perl -i -pe "s{^(\s*)array('type' => 'flatfile')}{$1array('type' => 'serialize', 'directory' => 'metadata\/metarefresh-federation'),}" $SSP_ROOT/config/config.php
 
 echo "Create Signing/Encryption Certificate in  $SSP_ROOT/cert/" # used for XMLDsig/XMLEnc
 openssl req -x509 -batch -nodes -newkey rsa:2048 \

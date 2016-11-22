@@ -18,10 +18,7 @@ export BUILDARGS="
     --build-arg "USERNAME=$CONTAINERUSER" \
     --build-arg "UID=$CONTAINERUID" \
 "
-export ENVSETTINGS="
-    -e LOGDIR=/var/log
-    -e LOGLEVEL=INFO
-"
+export ENVSETTINGS=""
 
 # assuming that ssp is proxied, and proxy is talking to dockernet address
 export NETWORKSETTINGS="

@@ -22,6 +22,7 @@ RUN apt-get update  -y \
 # save apache config for init_config script
 RUN mkdir -p /opt/default/ && cp -pr /etc/apache2 /opt/default/ \
  && sed -ie 's/^Listen 80/Listen 8080/' /opt/default/apache2/ports.conf
+COPY install/etc/apache2/conf-available/servername.conf /opt/default/apache2/conf-available/servername.conf
 COPY install/etc/apache2/sites-enabled/000-default.conf /opt/default/apache2/sites-enabled/000-default.conf
 
 # --- install postfix and save send-only config for init_config script

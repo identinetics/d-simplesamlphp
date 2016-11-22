@@ -9,7 +9,7 @@ echo "initializing postfix config"
 cp -pr /opt/default/postfix /etc/
 
 echo "initializing attributemap/, config/ and metadata/ with default data"
-cp -pr $SSP_ROOT/config-template/attributemap-templates/* $SSP_ROOT/attributemap/
+cp -pr $SSP_ROOT/attributemap-templates/* $SSP_ROOT/attributemap/
 cp -p  $SSP_ROOT/config-templates/* $SSP_ROOT/config/
 cp -pr $SSP_ROOT/metadata-templates/* $SSP_ROOT/metadata/
 module in cron metarefresh; do

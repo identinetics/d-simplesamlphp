@@ -41,8 +41,8 @@ RUN git clone https://github.com/simplesamlphp/simplesamlphp.git $SSP_ROOT \
 RUN mkdir -p $SSP_ROOT/attributemap-templates \
  && cp -pr $SSP_ROOT/attributemap/* $SSP_ROOT/attributemap-templates/ \
  && for module in cron metarefresh; do \
-        cp -pr $SSP_ROOT/modules/${module}/config-templates/* $SSP_ROOT/config-templates/ \
-        touch $SSP_ROOT/modules/${module}/enable \
+        cp -pr $SSP_ROOT/modules/${module}/config-templates/* $SSP_ROOT/config-templates/; \
+        touch $SSP_ROOT/modules/${module}/enable; \
     done
 COPY install/etc/simplesaml/attributemap/pvp2name.php $SSP_ROOT/attributemap-templates/
 COPY install/etc/simplesaml/config/*.php $SSP_ROOT/config-templates/

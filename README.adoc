@@ -99,6 +99,8 @@ Key points are:
 |===
 - Configure the session store (config.php/store.type). Select 'sql' if the app uses phpsession.
   You may use the application database instead of sqllite3 (for drupal see https://www.drupal.org/node/1538334)
+- module-cron.php
+  Set the value of 'key' to a chosen secret. 
 
 # Outbound SMTP for Admin Alerts 
 Optionally configure postfix to forward mail from root to an accout on a smart host (/etc/postfix 
@@ -114,6 +116,12 @@ To access the SSP admin page from the host server try:
 
     username: admin
     password: <whateveryoudefinedbeforeanddeemedsecureenough>
+    
+    Go to the "Cron module information page" on the configuration tab, start the hourly cron job
+    and check that the metadata refresh was completed with success (check logfile and that 
+    metadata/metarefresh-federation/ must not be empty). You may also use the "refresh metadata" 
+    link on the "Federation" tab.
+    If metadata is consumed properly, then install the command into crontab as suggested.
 
 To access SP pages try:
     https://<sp-fqdn>/test/test.php   # unauthenticated

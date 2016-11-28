@@ -12,6 +12,7 @@ Enable in settings.php:
 
 1. enable module in drupal admin
 2. configure module
+
    Installation directory: /var/simplesaml
    Attribute for user's name: X-PVP-PRINCIPAL-NAME
    Attribute for user id: X-PVP-USERID

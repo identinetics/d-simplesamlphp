@@ -30,7 +30,8 @@ COPY install/etc/apache2/conf-available/servername.conf /opt/default/apache2/con
 COPY install/etc/apache2/sites-enabled/000-default.conf /opt/default/apache2/sites-enabled/000-default.conf
 
 # --- install postfix and save send-only config for init_config script
-RUN apt-get install -y mailutils \
+RUN apt-get update -y \
+ && apt-get install -y mailutils \
  && apt-get clean \
  && sed -ie 's/^inet_interfaces = all/inet_interfaces = loopback-only/' /etc/postfix/main.cf \
  && cp -pr /etc/postfix /opt/default/

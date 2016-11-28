@@ -15,6 +15,7 @@ cp -pr $SSP_ROOT/metadata-templates/* $SSP_ROOT/metadata/
 cp -p  $SSP_ROOT/config-templates/* $SSP_ROOT/config/
 perl -i -pe "s{^(\s*)'logging.handler'\s+=> 'syslog'}{$1'logging.handler' => 'file'}" $SSP_ROOT/config/config.php
 perl -i -pe "s{^(\s*)array('type' => 'flatfile')}{$1array('type' => 'serialize', 'directory' => 'metadata\/metarefresh-federation'),}" $SSP_ROOT/config/config.php
+perl -i -pe "s{'sqlite:/path/to/sqlitedatabase.sq3'}{'sqlite:/tmp/sqlitedatabase.sq3'}" $SSP_ROOT/config/config.php
 
 echo "Create Signing/Encryption Certificate in  $SSP_ROOT/cert/" # used for XMLDsig/XMLEnc
 openssl req -x509 -batch -nodes -newkey rsa:2048 \

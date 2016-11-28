@@ -65,14 +65,24 @@ Key points are:
 - module-cron.php
   Set the value of 'key' to a chosen secret.
 
-== Start SP and run sanity check
+== Start SP
 
-== Export SP Metadata to the Federation
+=== Run sanity check
 
-Create the metadata for the SP and make it available to the IDPs.
-Download the XML file from https://<sp-fqdn>/simplesaml/module.php/saml/sp/metadata.php/default-sp
-Metadata created by SSP is minimal any might be compliant with the federation requirements and have to be edited.
-Import into the federation's metadata aggregator (or the IDP for a local installation).
+Open https://sp.example.org/simplesaml in browsers navigate to 'Sanity check of your SimpleSAMLphp setup' on the configuration tab.
+
+=== Test Federation Metadata refresh
+
+Navigate to 'Metarefresh: fetch metadata' on the federation tab and check the log file and the
+resulting metadata in /var/simplesaml/metadata/metarefresh-federation. Fix any problems until all required
+metadata is imported correctly.
+
+=== Export SP Metadata and make it available to the IDPs
+
+Navigate to 'Show metadata' on the federation tab, or wownload the XML file from
+https://<sp-fqdn>/simplesaml/module.php/saml/sp/metadata.php/default-sp
+Metadata created by SSP is minimal and might not be compliant with the federation requirements.
+Edit it, then import into the federation's metadata aggregator (or the IDP for a local installation).
 
 == Outbound SMTP for Admin Alerts
 Optionally configure postfix to forward mail from root to an accout on a smart host (/etc/postfix

@@ -17,3 +17,13 @@ Enable in settings.php:
    Attribute for user's name: X-PVP-PRINCIPAL-NAME
    Attribute for user id: X-PVP-USERID
    Attribute for email: X-PVP-MAIL
+
+== Trouble Shooting
+
+The mysql client is installed in the container, the default connect is:
+
+    mysql -u drupal7 -pdrupal7 -h mariadb drupal7
+
+Get the last 10 messages:
+
+    SELECT * from drupal7.watchdog ORDER BY timestamp DESC LIMIT 0, 10;

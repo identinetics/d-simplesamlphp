@@ -23,6 +23,9 @@ Docker image for Drupal 7 + simpleSAMLphp (SSP) with cookbook to configure an SP
   - Install [Docker](https://www.docker.com/)
   - Scripts in dscripts subproject work on Redhat and Debian Docker hosts, others need
     to be adapted
+  - Configure hostname and certificate at the reverse proxy with the x-forwarded-for protocol.
+    This configuration uses the github project identinetcs/docker-nginx. If the reverse proxy is not
+    on the shared docker bridge, port 8080 of this container must be exposed.
 
 == Install Docker Build Environment
 

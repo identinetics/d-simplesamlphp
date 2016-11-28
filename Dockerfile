@@ -3,6 +3,10 @@ MAINTAINER r2h2 <rainer@hoerbe.at>
 
 ENV DEBIAN_FRONTEND noninteractive
 
+# ===== simpleSAMLphp =====
+
+# default user for apache httpd is www-data (uid 33)
+
 # --- postfix send-only + httpd/php5
 RUN apt-get update  -y \
  && apt-get install -y git curl htop openssl-blacklist \
@@ -58,18 +62,27 @@ RUN curl -sS https://getcomposer.org/installer | php \
  && php composer.phar install
 
 
+# ===== Drupal =====
+
+RUN a2enmod rewrite
+
+# install the required PHP extensions 
+RUN apt-get update \
+ && apt-get install -y libpng12-dev libjpeg-dev libpq-dev mariadb-client wget \
+ && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y php5-gd php5-mysql && apt-get clean
+#     # libapache2-mod-php5 contains mbstring and zip
+#     && apt-get install libapache2-mod-php5 \
+#     && apt-get clean
+#
+WORKDIR /var/www/html
+
+# do not install stuff into /var/www at build time - directory will be mapped to docker host at run time
+
+# ===== Startup & enable non-root user =====
+
 # --- Scripts
 COPY install/scripts/*.sh /
 RUN chmod +x /*.sh
 
-
-# --- Run non-root (with its uid mapping nicely to the docker host)
-ARG USERNAME=ssphttpd
-ARG UID=3000
-RUN groupadd -g $UID $USERNAME \
- && adduser --gid $UID --no-create-home --disabled-password --gecos "" --uid $UID $USERNAME \
- && mkdir -p /opt && chmod 750 /opt \
- && chown $USERNAME:$USERNAME /var/run/apache2 /var/lock/apache2
-
 USER $USERNAME
-

@@ -19,11 +19,11 @@ chown 33:33 /var/simplesaml/metadata/metarefresh-federation
 cp -p  $SSP_ROOT/config-templates/* $SSP_ROOT/config/
 
 # set default logging to file
-perl -i -pe "s{^(\s*)'logging.handler'\s+=> 'syslog'}{$1'logging.handler' => 'file'}" $SSP_ROOT/config/config.php
+perl -i -pe "s{^(\s*)'logging.handler'\s+=> 'syslog'}{\1'logging.handler' => 'file'}" $SSP_ROOT/config/config.php
 # set location for federated metadata
-perl -i -pe "s{^(\s*)array('type' => 'flatfile')}{$1array('type' => 'serialize', 'directory' => 'metadata\/metarefresh-federation'),}" $SSP_ROOT/config/config.php
+perl -i -pe "s{^(\s*)array\('type'\s+=> 'flatfile'\),}{\1array('type' => 'serialize', 'directory' => 'metadata\/metarefresh-federation'),}" $SSP_ROOT/config/config.php
 # set store-type to sql
-perl -i -pe "s{^(\s*)'store.type'\s+=> 'phpsession',}{$1'store.type' => 'sql',}" $SSP_ROOT/config/config.php
+perl -i -pe "s{^(\s*)'store.type'\s+=> 'phpsession',}{\1'store.type' => 'sql',}" $SSP_ROOT/config/config.php
 # set default session db
 perl -i -pe "s{'sqlite:/path/to/sqlitedatabase.sq3'}{'sqlite:/tmp/sqlitedatabase.sq3'}" $SSP_ROOT/config/config.php
 

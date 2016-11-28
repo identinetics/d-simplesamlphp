@@ -1,9 +1,10 @@
-# docker-simplesamlphp
+= docker-simplesamlphp
+ifdef::env-github,env-browser[:outfilesuffix: .adoc]
 
 Docker image for Drupal 7 + simpleSAMLphp (SSP) with cookbook to configure an SP in a federation 
 
 
-## Features
+== Features
 
 - simpleSAMLphp
 ** Install SSP from Github repo
@@ -17,13 +18,13 @@ Docker image for Drupal 7 + simpleSAMLphp (SSP) with cookbook to configure an SP
 ** Delegate TSL configuration to a dedicated proxy
 ** install simpleSAMLphp_auth module
 
-## Prerequisites
+== Prerequisites
 
   - Install [Docker](https://www.docker.com/)
   - Scripts in dscripts subproject work on Redhat and Debian Docker hosts, others need
     to be adapted
 
-## Install Docker Build Environment
+== Install Docker Build Environment
 
     git clone https://github.com/identinetics/docker-simplesamlphp.git
     cd docker-simplesamlphp
@@ -37,6 +38,6 @@ Modify conf.sh to your local needs, then:
     
 == Configuration
 
-Link:doc/config_ssp.html[Configure SSP as an SAML2 SP]
+link:doc/config_ssp{outfilesuffix}[Configure SSP as an SAML2 SP]
 
-Link:doc/config_d7.html[Configure Drupal7]
+link:doc/config_d7{outfilesuffix}[Configure Drupal7]

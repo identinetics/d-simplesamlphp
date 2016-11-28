@@ -36,10 +36,9 @@ RUN apt-get install -y mailutils \
  && cp -pr /etc/postfix /opt/default/
 
 # --- SimpleSAMLphp
-# install core, tweak config
+# install core
 ENV SSP_ROOT=/var/simplesaml
-RUN git clone https://github.com/simplesamlphp/simplesamlphp.git $SSP_ROOT \
- && touch /tmp/sqlitedatabase.sq3
+RUN git clone https://github.com/simplesamlphp/simplesamlphp.git $SSP_ROOT
 
 # prepare default configuration to be copied into container volumes at run time
 RUN mkdir -p $SSP_ROOT/attributemap-templates \

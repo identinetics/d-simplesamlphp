@@ -7,22 +7,25 @@ Docker image for Drupal 7 + simpleSAMLphp (SSP) with cookbook to configure an SP
 
 - simpleSAMLphp
 ** Install SSP from Github repo
-** Immutable container, exposing config, log etc. to docker host volumes, with proper 
-**  initialization from default values (using the scripts in the dscript folder)
+** Immutable container, exposing config, log etc. to docker host volumes, with proper
+   initialization from default values (using the scripts in the dscript folder)
 ** Run container as non-root
-** By default exclude TSL configuration (delegated to a dedicated proxy)
+** Delegate TSL configuration to a dedicated proxy
 ** Using original templates from simpleSAMLphp except config-metarefresh.php
 ** Guidance for configuration with automated metadata source (federation setup)  
 - Drupal
+** Delegate TSL configuration to a dedicated proxy
 ** install simpleSAMLphp_auth module
 
 ## Prerequisites
 
   - Install [Docker](https://www.docker.com/)
+  - Scripts in dscripts subproject work on Redhat and Debian Docker hosts, others need
+    to be adapted
 
 ## Install Docker Build Environment
 
-    git clone https://github.com/rhoerbe/docker-simplesamlphp.git
+    git clone https://github.com/identinetics/docker-simplesamlphp.git
     cd docker-simplesamlphp
     git submodule update --init && cd dscripts && git checkout master && cd ..
     cp conf.sh.default conf.sh
@@ -32,122 +35,8 @@ Modify conf.sh to your local needs, then:
     
     dscripts/build.sh    
     
-## Configure SSP as an SAML2 SP
+== Configuration
 
-### Create a default configuration:
+Link:doc/config_ssp.html[Configure SSP as an SAML2 SP]
 
-    dscripts/run.sh -ir /init_config_ssp.sh
-    dscripts/run.sh -ir /init_config_d7.sh
-
-
-### Collect essential configuraton data to get started in a federation:
- 
-[width="100%"]
-|===
-|Item|Example values in default configuration
-|<SP root URL> | https://sp.example.org/
-|<SP entityID> | https://sp.example.org/simplesaml
-|<Federation metadata URL> | http://mdfeed.federation.org/metadata.xml
-|<Metadata signing cert> | metadata_crt.pem
-|<Attributemap>| | federation specific mapping between "friendly names" and URN/OID
-|===
-
-
-### Load Balancer/Revese Proxy
-
-This ist extermal to this docker image. Configure a reverse proxy (load balancer) terminating TLS to relay 
-  requests on the dockernet interface providing the HTTP_X_FORWARDED headers
-
-
-### Virtual Host
-
-Configure apache vhost (minimum: set ServerName to the <SP root URL> in sites-available/000-default.conf)
-
-### Export SP Metadata to the Federation
-
-Create the metadata for the SP and make it available to the IDPs. 
-Download the XML file from https://<sp-fqdn>/simplesaml/module.php/saml/sp/metadata.php/default-sp
-Metadata created by SSP is minimal any might be compliant with the federation requirements and have to be edited.
-Import into the federation's metadata aggregator (or the IDP for a local installation).
- 
-### Import the Federation Metadata
-Configure cron & metarefresh accoring to https://simplesamlphp.org/docs/stable/simplesamlphp-automated_metadata. 
-Key points are:
-- Set 'src' in config-metarefresh.php to <Federation metadata URL>
-- Set 'expireAfter accordingly
-- Copy the <Metadata signing cert> from a trusted source (formally confirmed key exchange for 
-  production env - this is the trust anchor!)
-
-### Configure the SP
-- authsources.php:
-[width="100%"]
-|===
-|Key | Value |
-|entityID | <SP entityID>
-|idp | null | leaving this null will trigger the idp discovery and allow more than one IDP to be used
-|discoURL | null | The build-in disco service provides better UI control, but cookies are not shared across SPs 
-|===
-- config.php 
-[width="100%"]
-|===
-|Key|Value|
-|baseurlpath | https://sp.example.org/simplesaml | Full URL required for reverse proxy config
-|technicalcontact_email | admin@example.org | 
-|technicalcontact_name | Support example.org | 
-|secretsalt | $(openssl rand -base64 30) | 
-|auth.adminpassword| ... | see timezone
-|authproc.sp | 10 => array('class' => 'core:AttributeMap', 'pvp2name'), | add a custom or provided <Attributemap> to authproc.sp
-|session.duration | 1*(60*60) | federation or deployment-specific value, e.g. 1h 
-|timezone | Europe/Vienna | http://php.net/manual/en/timezones.php
-|===
-- Configure the session store (config.php/store.type). Select 'sql' if the app uses phpsession.
-  You may use the application database instead of sqllite3 (for drupal see https://www.drupal.org/node/1538334)
-- module-cron.php
-  Set the value of 'key' to a chosen secret. 
-
-# Outbound SMTP for Admin Alerts 
-Optionally configure postfix to forward mail from root to an accout on a smart host (/etc/postfix 
-is mapped to the docker host)
-
-## Run
-
-    dscripts/run.sh 
-
-To access the SSP admin page from the host server try:
-
-    https://<sp-fqdn>/simplesaml
-
-    username: admin
-    password: <whateveryoudefinedbeforeanddeemedsecureenough>
-    
-    Go to the "Cron module information page" on the configuration tab, start the hourly cron job
-    and check that the metadata refresh was completed with success (check logfile and that 
-    metadata/metarefresh-federation/ must not be empty). You may also use the "refresh metadata" 
-    link on the "Federation" tab.
-    If metadata is consumed properly, then install the command into crontab as suggested.
-
-To access SP pages try:
-    https://<sp-fqdn>/test/test.php   # unauthenticated
-    https://<sp-fqdn>/test/hellosaml.php   # authenticated
-
-## Session Handling
--> If application is using SSP phpsession avoid the phpsession setting, use DB or memcached instead.
-   (Option: Extend SP phpsession in application if you know what you are doing)
-
-## Troubleshooting
-
-1. Look up apache logs (/var/log/apache2/) for PHP exceptions
-2. Turn up the debug level (INFO or DEBUG) and observe var/log/simplesaml/simplesamlphp.log
-3. Use the SAML tracer add-on in Firefox to watch protocaol exchanges on HTTP and SAML levels
-
-
-## Productionalization
-Before or when moving the configuration to a production environment check the security-relevant settings,
-such as secret, <Metadata signing cert>, auth.adminpassword etc.
-
-### References
-
-[simpleSAMLphp Installation and Configuration](https://simplesamlphp.org/docs/stable/simplesamlphp-install)
-
-[How To Install Linux, Apache, MySQL, PHP (LAMP) stack on Ubuntu](https://www.digitalocean.com/community/tutorials/how-to-install-linux-apache-mysql-php-lamp-stack-on-ubuntu)
-
+Link:doc/config_d7.html[Configure Drupal7]

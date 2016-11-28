@@ -1,0 +1,18 @@
+= Configure Drupal 7
+
+== Make D7 run behind reverse proxy
+
+Enable in settings.php:
+
+    $base_url = 'https://<FQDN>';  // NO trailing slash!
+    $conf['reverse_proxy'] = TRUE;
+    $conf['reverse_proxy_addresses'] = array('<IP of proxy>',);
+
+== Enable module simplesamlphp_auth
+
+1. enable module in drupal admin
+2. configure module
+   Installation directory: /var/simplesaml
+   Attribute for user's name: X-PVP-PRINCIPAL-NAME
+   Attribute for user id: X-PVP-USERID
+   Attribute for email: X-PVP-MAIL

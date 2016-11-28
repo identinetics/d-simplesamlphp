@@ -37,6 +37,6 @@ Modify conf.sh to your local needs, then:
     
 == Configuration
 
-Link:doc/config_ssp.html[Configure SSP as an SAML2 SP]
+Link:doc/config_ssp.adoc[Configure SSP as an SAML2 SP]
 
 Link:doc/config_d7.html[Configure Drupal7]

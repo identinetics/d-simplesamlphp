@@ -1,18 +1,20 @@
 # docker-simplesamlphp
 
-simpleSAMLphp (SSP) Docker image with cookbook to configure an SP in a federation 
+Docker image for Drupal 7 + simpleSAMLphp (SSP) with cookbook to configure an SP in a federation 
 
 
 ## Features
 
-- Install SSP from Github repo
-- Immutable container, exposing config, log etc. to docker host volumes, with proper 
-  initialization from default values (using the scripts in the dscript folder)
-- Run container as non-root
-- By default exclude TSL configuration (delegated to a dedicated proxy)
-- Using original templates from simpleSAMLphp except config-metarefresh.php
-- Guidance for configuration with automated metadata source (federation setup)  
-
+- simpleSAMLphp
+** Install SSP from Github repo
+** Immutable container, exposing config, log etc. to docker host volumes, with proper 
+**  initialization from default values (using the scripts in the dscript folder)
+** Run container as non-root
+** By default exclude TSL configuration (delegated to a dedicated proxy)
+** Using original templates from simpleSAMLphp except config-metarefresh.php
+** Guidance for configuration with automated metadata source (federation setup)  
+- Drupal
+** install simpleSAMLphp_auth module
 
 ## Prerequisites
 
@@ -34,7 +36,8 @@ Modify conf.sh to your local needs, then:
 
 ### Create a default configuration:
 
-    dscripts/run.sh -ir /init_config.sh
+    dscripts/run.sh -ir /init_config_ssp.sh
+    dscripts/run.sh -ir /init_config_d7.sh
 
 
 ### Collect essential configuraton data to get started in a federation:

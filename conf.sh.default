@@ -74,6 +74,7 @@ set_network() {
 
 
 set_vol_mapping() {
+    VOLMAPPING=''
     create_containeruser
 
     export VOLROOT="${DOCKERVOL_ROOT}/$CONTAINERNAME"  # container volumes on docker host
